@@ -12,7 +12,7 @@ while (lowerCase <= 'z')
 {
 if (lowerCase == 'e' || lowerCase == 'q')
 {
-loweCase += 1;
+lowerCase += 1;
 }
 else
 {
