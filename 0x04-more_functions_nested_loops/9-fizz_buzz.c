@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include "main.h"
 
 /**
- * main - entry point
- * prints the numbers 1 - 100
- * Return: 0
+ * main - Entry point
+ * Description: Prints the numbers 1 - 100
+ * Return: Always 0
  */
 
 int main(void)
@@ -12,16 +13,17 @@ int i;
 
 for (i = 1; i <= 100; i++)
 {
-if ((i % 3 == 0) && (i % 5 == 0))
-printf("FizzBuzz ");
+if (i % 15 == 0)
+printf("FizzBuzz");
 else if (i % 3 == 0)
-printf("Fizz ");
+printf("Fizz");
 else if (i % 5 == 0)
-printf("Buzz ");
+printf("Buzz");
 else
-printf("%d ", i);
+printf("%i", i);
+if (i < 100)
+printf(" ");
 }
-
 printf("\n");
 return (0);
 }
