@@ -11,16 +11,15 @@
  */
 char *_strchr(char *s, char c)
 {
-/* Loop through the string until the end or until the character is found */
+
 while (*s != '\0')
 {
 if (*s == c)
 {
-return (s); /* Return the pointer to the first occurrence of c */
+return (s);
 }
 s++;
 }
 
-/* If the character is not found, return NULL */
 return (NULL);
 }
