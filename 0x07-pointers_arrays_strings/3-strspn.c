@@ -10,30 +10,22 @@
  */
 unsigned int _strspn(char *s, char *accept)
 {
-unsigned int count = 0;
-int found = 1;
+unsigned int bytes = 0;
+int index;
 
-while (*s && found)
+while (*s)
 {
-found = 0;
-
-while (*accept)
-{
-if (*s == *accept)
-{
-count++;
-found = 1;
-break;
+	for (index = 0; accept[index]; index++)
+	{
+		if (*s == accept[index])
+		{
+			bytes++;
+			break;
+		}
+		else if (accept[index + 1] == '\0')
+			return (bytes);
+	}
+	s++;
 }
-accept++;
-}
-
-if (!found)
-break;
-
-s++;
-accept = accept - count;
-}
-
-return (count);
+return (bytes);
 }
