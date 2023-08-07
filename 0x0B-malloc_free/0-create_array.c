@@ -25,23 +25,3 @@ array[i] = c;
 }
 return (array);
 }
-
-/**
- * simple_print_buffer - Print buffer in hex.
- * @buffer: Memory address.
- * @size: Memory size.
- * Return: None.
- */
-void simple_print_buffer(char *buffer, unsigned int size)
-{
-unsigned int i;
-for (i = 0; i < size; i++)
-{
-if (i % 10 == 0 && i > 0)
-{
-printf("\n");
-}
-printf("0x%02x ", buffer[i]);
-}
-printf("\n");
-}
