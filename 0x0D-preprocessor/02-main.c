@@ -7,8 +7,6 @@
  */
 int main(void)
 {
-/* Print the name of the current source file */
 printf("%s\n", __FILE__);
-
-return 0;
+return (0);
 }
