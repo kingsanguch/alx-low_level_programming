@@ -25,6 +25,7 @@ if (new_dog_ptr->name == NULL)
 free(new_dog_ptr);
 return (NULL);
 }
+strcpy(new_dog_ptr->name, name);
 
 new_dog_ptr->age = age;
 new_dog_ptr->owner = malloc(strlen(owner) + 1);
@@ -34,6 +35,8 @@ free(new_dog_ptr->name);
 free(new_dog_ptr);
 return (NULL);
 }
+strcpy(new_dog_ptr->owner, owner);
 
 return (new_dog_ptr);
+
 }
