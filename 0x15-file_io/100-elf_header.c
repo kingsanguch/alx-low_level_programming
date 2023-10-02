@@ -1,74 +1,83 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <stdint.h>
 #include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-#define ELF_MAGIC_SIZE 16
-#define BUFFER_SIZE 64
+#define BUF_SIZE 64
 
 /**
- * main - Displays the information contained in the ELF header of an ELF file.
- * @argc: The number of arguments.
- * @argv: The array of arguments.
- *
- * Return: 0 on success, or exit with status code 98 on failure.
+ * main - Entry point
+ * @argc: Argument count
+ * @argv: Argument vector
+ * Return: 0 on success, 98 on failure
  */
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-int fd, read_bytes;
-char elf_magic[ELF_MAGIC_SIZE];
-char buffer[BUFFER_SIZE];
+int fd;
+int i;
+ssize_t bytes_read;
+char buf[BUF_SIZE];
 
 if (argc != 2)
 {
 dprintf(STDERR_FILENO, "Usage: %s elf_filename\n", argv[0]);
-return (98);
+exit(98);
 }
 
 fd = open(argv[1], O_RDONLY);
 if (fd == -1)
 {
-dprintf(STDERR_FILENO, "Error: Cannot read file '%s'\n", argv[1]);
-return (98);
-}
-read_bytes = read(fd, elf_magic, ELF_MAGIC_SIZE);
-if (read_bytes != ELF_MAGIC_SIZE || elf_magic[0] != 0x7f || elf_magic[1] != 'E' || elf_magic[2] != 'L' || elf_magic[3] != 'F')
-{
-dprintf(STDERR_FILENO, "Error: Not an ELF file: '%s'\n", argv[1]);
-close(fd);
-return (98);
+dprintf(STDERR_FILENO, "Error: Cannot open file '%s'\n", argv[1]);
+exit(98);
 }
 
-lseek(fd, 0, SEEK_SET);
-read_bytes = read(fd, buffer, BUFFER_SIZE);
-if (read_bytes == -1)
+/* Read the ELF header */
+bytes_read = read(fd, buf, BUF_SIZE);
+if (bytes_read == -1)
 {
-dprintf(STDERR_FILENO, "Error: Cannot read file '%s'\n", argv[1]);
+dprintf(STDERR_FILENO, "Error: Cannot read ELF header\n");
 close(fd);
-return (98);
+exit(98);
 }
 
+/* Check if it's a valid ELF file */
+if (bytes_read < 4 || buf[0] != 0x7F || buf[1] != 'E' || buf[2] != 'L' || buf[3] != 'F')
+{
+dprintf(STDERR_FILENO, "Error: Not an ELF file\n");
+close(fd);
+exit(98);
+}
+
+/* Display ELF Header information */
 printf("ELF Header:\n");
-printf("  Magic:   ");
-for (int i = 0; i < ELF_MAGIC_SIZE; i++)
-{
-printf("%02x", elf_magic[i]);
-if (i < ELF_MAGIC_SIZE - 1)
-printf(" ");
-}
-printf("\n");
 
-printf("  Class:                             ELF%d\n", buffer[4] == 1 ? 32 : 64);
-printf("  Data:                              2's complement, %s endian\n", buffer[5] == 1 ? "little" : "big");
-printf("  Version:                           1 (current)\n");
-printf("  OS/ABI:                            UNIX - %s\n", buffer[7] == 0 ? "System V" : "Other");
-printf("  ABI Version:                       %d\n", buffer[8]);
+/* Magic */
+printf("  Magic:   ");
+for (i = 0; i < 16; i++)
+printf("%02x%c", buf[i], i < 15 ? ' ' : '\n');
+
+/* Class */
+printf("  Class:                             ELF%d\n", buf[4] == 1 ? 32 : 64);
+
+/* Data */
+printf("  Data:                              2's complement, %s endian\n", buf[5] == 1 ? "little" : "big");
+
+/* Version */
+printf("  Version:                           %d (current)\n", buf[6]);
+
+/* OS/ABI */
+printf("  OS/ABI:                            UNIX - System V\n");
+
+/* ABI Version */
+printf("  ABI Version:                       %d\n", buf[8]);
+
+/* Type */
 printf("  Type:                              ");
-switch (*(unsigned int *)(buffer + 16))
+switch (*((uint16_t *)(buf + 16)))
 {
-case 0:
-printf("NONE (None)\n");
-break;
 case 1:
 printf("REL (Relocatable file)\n");
 break;
@@ -78,16 +87,14 @@ break;
 case 3:
 printf("DYN (Shared object file)\n");
 break;
-case 4:
-printf("CORE (Core file)\n");
-break;
 default:
-printf("<unknown: %d>\n", *(unsigned int *)(buffer + 16));
-break;
+printf("<unknown: %d>\n", *((uint16_t *)(buf + 16)));
 }
+
+/* Entry point address */
 printf("  Entry point address:               0x");
-for (int i = 0; i < 8; i++)
-printf("%02x", buffer[24 + i]);
+for (i = 0; i < (buf[4] == 1 ? 4 : 8); i++)
+printf("%02x", buf[24 + i]);
 printf("\n");
 
 close(fd);
