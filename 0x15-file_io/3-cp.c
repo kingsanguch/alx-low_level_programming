@@ -69,3 +69,4 @@ report_error("Error: Can't close fd\n", "", 100);
 
 return (0);
 }
+
